@@ -14,7 +14,10 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Nexo — Seu Assistente Pessoal com IA de Verdade">
 <meta name="twitter:description" content="Organize tarefas, finanças e hábitos apenas com a sua voz. IA que entende o contexto da sua vida.">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+<link rel="icon" type="image/png" sizes="64x64" href="favicon-64.png">
+<link rel="apple-touch-icon" href="logo-nav.png">
+<meta property="og:image" content="logo-oficial.png">
+<meta name="twitter:image" content="logo-oficial.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Lora:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
 <style>
@@ -42,8 +45,11 @@ a{text-decoration:none;color:inherit}
 .nav{position:fixed;top:0;left:0;right:0;z-index:100;transition:all .4s}
 .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;max-width:1200px;margin:0 auto}
 .nav.scrolled{background:rgba(3,7,18,0.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.04)}
-.nav-logo{font-weight:800;font-size:24px;color:var(--text1);letter-spacing:4px}
-.nav-logo span{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-logo img{height:40px;width:40px;border-radius:10px;object-fit:cover;box-shadow:0 0 20px rgba(0,212,255,.25);transition:all .3s}
+.nav-logo img:hover{box-shadow:0 0 30px rgba(0,212,255,.45);transform:scale(1.05)}
+.nav-logo-text{font-weight:800;font-size:22px;color:var(--text1);letter-spacing:2px;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+@media (max-width:640px){.nav-logo img{height:36px;width:36px}.nav-logo-text{font-size:20px}}
 .nav-links{display:flex;gap:32px;align-items:center}
 .nav-links a{font-size:14px;font-weight:500;color:var(--text3);transition:color .3s}
 .nav-links a:hover{color:var(--text1)}
@@ -469,7 +475,10 @@ input:focus-visible{outline:none;border-color:var(--cyan)!important;box-shadow:0
 <!-- Nav -->
 <nav class="nav" id="nav" aria-label="Navegação principal">
   <div class="nav-inner">
-    <div class="nav-logo">NEX<span>O</span></div>
+    <a href="#" class="nav-logo" aria-label="Nexo — Início">
+      <img src="logo-nav.png" alt="Nexo" width="40" height="40">
+      <span class="nav-logo-text">NEXO</span>
+    </a>
     <button class="nav-hamburger" id="hamburger" aria-label="Menu" onclick="toggleMenu()"><span></span><span></span><span></span></button>
     <div class="nav-links" id="navLinks">
       <a href="#diferenciais" onclick="closeMenu()">Diferenciais</a>
