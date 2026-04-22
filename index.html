@@ -2437,17 +2437,8 @@ window.addEventListener('load', () => { setTimeout(resize, 500); });
   const banner = document.getElementById('welcome-banner');
   const bannerClose = document.getElementById('welcome-banner-close');
 
-  const WELCOME_TEXT = "Olá! Eu sou o Nexo, seu assistente pessoal de última geração.";
-
   let alreadyWelcomed = false;
   try { alreadyWelcomed = localStorage.getItem('nexo_welcomed') === '1'; } catch(e) {}
-
-  // Detecta se o arquivo de áudio foi carregado com sucesso
-  let audioFileOk = false;
-  if (welcomeAudio) {
-    welcomeAudio.addEventListener('canplaythrough', () => { audioFileOk = true; }, { once: true });
-    welcomeAudio.addEventListener('loadeddata', () => { audioFileOk = true; }, { once: true });
-  }
 
   function markWelcomed() {
     alreadyWelcomed = true;
@@ -2463,48 +2454,17 @@ window.addEventListener('load', () => { setTimeout(resize, 500); });
     if (banner) banner.classList.remove('visible');
   }
 
-  // Fallback: Web Speech API (voz nativa do navegador)
-  function speakFallback() {
-    if (!('speechSynthesis' in window)) return false;
-    try {
-      window.speechSynthesis.cancel();
-      const utter = new SpeechSynthesisUtterance(WELCOME_TEXT);
-      utter.lang = 'pt-BR';
-      utter.rate = 0.95;
-      utter.pitch = 1.0;
-      utter.volume = 0.9;
-
-      // Tenta achar melhor voz pt-BR disponível
-      const voices = window.speechSynthesis.getVoices();
-      const preferred = voices.find(v => /pt-BR|pt_BR/i.test(v.lang) && /luciana|female|feminino/i.test(v.name))
-                    || voices.find(v => /pt-BR|pt_BR/i.test(v.lang))
-                    || voices.find(v => /pt/i.test(v.lang));
-      if (preferred) utter.voice = preferred;
-
-      if (replayBtn) replayBtn.classList.add('playing');
-      utter.onend = () => { if (replayBtn) replayBtn.classList.remove('playing'); };
-      utter.onerror = () => { if (replayBtn) replayBtn.classList.remove('playing'); };
-      window.speechSynthesis.speak(utter);
-      return true;
-    } catch(e) {
-      return false;
-    }
-  }
-
+  // Toca o MP3 de boas-vindas. Se falhar (arquivo ausente, autoplay bloqueado,
+  // rede ruim etc), fica em silêncio — evita voz/texto diferentes do MP3 oficial.
   function playWelcome() {
-    // Se o arquivo deu erro 404, vai direto pro fallback
-    if (!welcomeAudio || !audioFileOk) {
-      speakFallback();
-      return Promise.resolve();
-    }
-    // Tenta tocar o MP4/M4A
-    welcomeAudio.currentTime = 0;
-    welcomeAudio.volume = 0.85;
+    if (!welcomeAudio) return Promise.resolve();
+    try { welcomeAudio.currentTime = 0; } catch(e) {}
+    welcomeAudio.volume = 0.9;
     if (replayBtn) replayBtn.classList.add('playing');
     const p = welcomeAudio.play();
     return (p || Promise.resolve()).catch(() => {
+      // Play rejeitado: pode ser autoplay policy ou arquivo não carregado
       if (replayBtn) replayBtn.classList.remove('playing');
-      speakFallback();
     });
   }
 
@@ -2512,14 +2472,17 @@ window.addEventListener('load', () => { setTimeout(resize, 500); });
     welcomeAudio.addEventListener('ended', () => {
       if (replayBtn) replayBtn.classList.remove('playing');
     });
-    // Se o arquivo falhar a carregar, apenas marcamos — o fallback cobre
-    welcomeAudio.addEventListener('error', () => { audioFileOk = false; });
-  }
-
-  // Pré-carregar vozes do speechSynthesis (algumas browsers precisam desse ping)
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.getVoices();
-    window.speechSynthesis.addEventListener && window.speechSynthesis.addEventListener('voiceschanged', () => {});
+    welcomeAudio.addEventListener('error', () => {
+      if (replayBtn) replayBtn.classList.remove('playing');
+    });
+    // iOS Safari: force-load na primeira interação
+    const forceLoad = () => {
+      try { welcomeAudio.load(); } catch(e) {}
+      document.removeEventListener('touchstart', forceLoad);
+      document.removeEventListener('click', forceLoad);
+    };
+    document.addEventListener('touchstart', forceLoad, { once: true, passive: true });
+    document.addEventListener('click', forceLoad, { once: true });
   }
 
   // Banner + botão sempre visíveis (depois de ~1.2s)
